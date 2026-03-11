@@ -1,3 +1,4 @@
+import datetime
 import io
 from unittest.mock import patch
 
@@ -5,6 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import File
 from django.test import TestCase
 from django.test import override_settings
+from django.utils import timezone
 
 from storages.backends import ftp
 
@@ -16,6 +18,11 @@ PORT = 2121
 LIST_FIXTURE = """drwxr-xr-x   2 ftp      nogroup      4096 Jul 27 09:46 dir
 -rw-r--r--   1 ftp      nogroup      1024 Jul 27 09:45 fi
 -rw-r--r--   1 ftp      nogroup      2048 Jul 27 09:50 fi2"""
+
+MLST_VALID = """250-Begin
+ type=file;size=256;modify=20260101103015;UNIX.mode=0644;UNIX.uid=1000;UNIX.gid=1000;unique=123456789ab; file-name.ext
+250 End.
+"""  # noqa: E501
 
 
 def geturl(scheme="ftp", pwd=PASSWORD):
@@ -229,6 +236,27 @@ class FTPTest(TestCase):
             self.storage.url("foo")
         self.storage = ftp.FTPStorage(location=URL, base_url="http://foo.bar/")
         self.assertEqual("http://foo.bar/foo", self.storage.url("foo"))
+
+    @patch("ftplib.FTP", **{"return_value.sendcmd.return_value": MLST_VALID})
+    def test_get_modified_time_aware(self, mock_ftp):
+        """The correct datetime is returned in a timezone-aware context."""
+        aware_date = datetime.datetime(2026, 1, 1, 10, 30, 15, tzinfo=datetime.UTC)
+
+        with self.settings(TIME_ZONE="America/Montreal", USE_TZ=True):
+            last_modified = self.storage.get_modified_time("file-name.ext")
+            self.assertTrue(timezone.is_aware(last_modified))
+            self.assertEqual(aware_date, last_modified)
+
+    @patch("ftplib.FTP", **{"return_value.sendcmd.return_value": MLST_VALID})
+    def test_get_modified_time_naive(self, mock_ftp):
+        """The correct datetime is returned in a timezone-naive context."""
+        aware_date = datetime.datetime(2026, 1, 1, 10, 30, 15, tzinfo=datetime.UTC)
+
+        with self.settings(TIME_ZONE="America/Montreal", USE_TZ=False):
+            naive_date = timezone.make_naive(aware_date)
+            last_modified = self.storage.get_modified_time("file-name.ext")
+            self.assertTrue(timezone.is_naive(last_modified))
+            self.assertEqual(naive_date, last_modified)
 
 
 class FTPStorageFileTest(TestCase):
