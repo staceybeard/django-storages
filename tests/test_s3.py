@@ -731,8 +731,7 @@ class S3StorageTests(TestCase):
     def test_storage_url_custom_domain_signed_urls(self, dt):
         key_id = "test-key"
         filename = "file.txt"
-        pem = dedent(
-            """\
+        pem = dedent("""\
             -----BEGIN RSA PRIVATE KEY-----
             MIICWwIBAAKBgQCXVuwcMk+JmVSKuQ1K4dZx4Z1dEcRQgTlqvhAyljIpttXlZh2/
             fD3GkJCiqfwEmo+cdNK/LFzRj/CX8Wz1z1lH2USONpG6sAkotkatCbejiItDu5y6
@@ -747,8 +746,7 @@ class S3StorageTests(TestCase):
             waxahrRxQOKSr20c4wAzWnGddIUSO9I/VHs/al5EKsbBHrnOlQkwizSfuwqZtfZ7
             csNf8FeCFRiNELoLJwJAZxWBE2+8J9VW9AQ0SE7j4FyM/B8FvRhF5PLAAsw/OxHO
             SxiFP7Ptdac1tm5H5zOqaqSHWphI19HNNilXKmxuCA==
-            -----END RSA PRIVATE KEY-----"""
-        ).encode("ascii")
+            -----END RSA PRIVATE KEY-----""").encode("ascii")
 
         url = "https://mock.cloudfront.net/file.txt"
         signed_url = (
@@ -867,8 +865,7 @@ class S3StorageTests(TestCase):
         self.assertIsNone(storage.cloudfront_signer)
 
         key_id = "test-id"
-        pem = dedent(
-            """\
+        pem = dedent("""\
             -----BEGIN RSA PRIVATE KEY-----
             MIICWwIBAAKBgQCXVuwcMk+JmVSKuQ1K4dZx4Z1dEcRQgTlqvhAyljIpttXlZh2/
             fD3GkJCiqfwEmo+cdNK/LFzRj/CX8Wz1z1lH2USONpG6sAkotkatCbejiItDu5y6
@@ -883,8 +880,7 @@ class S3StorageTests(TestCase):
             waxahrRxQOKSr20c4wAzWnGddIUSO9I/VHs/al5EKsbBHrnOlQkwizSfuwqZtfZ7
             csNf8FeCFRiNELoLJwJAZxWBE2+8J9VW9AQ0SE7j4FyM/B8FvRhF5PLAAsw/OxHO
             SxiFP7Ptdac1tm5H5zOqaqSHWphI19HNNilXKmxuCA==
-            -----END RSA PRIVATE KEY-----"""
-        ).encode("ascii")
+            -----END RSA PRIVATE KEY-----""").encode("ascii")
 
         with override_settings(AWS_CLOUDFRONT_KEY_ID=key_id, AWS_CLOUDFRONT_KEY=pem):
             storage = s3.S3Storage()
