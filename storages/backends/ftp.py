@@ -209,7 +209,7 @@ class FTPStorage(BaseStorage):
             # Extract the timestamp between 'modify=' and the next ';'
             last_modified = response.split("modify=")[1].split(";")[0]
             return datetime.datetime.strptime(last_modified, "%Y%m%d%H%M%S").replace(
-                tzinfo=datetime.UTC
+                tzinfo=datetime.timezone.utc
             )
 
         except ValueError as error:

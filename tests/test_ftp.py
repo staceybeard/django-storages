@@ -242,7 +242,9 @@ class FTPTest(TestCase):
     @patch("ftplib.FTP", **{"return_value.sendcmd.return_value": MLST_VALID})
     def test_get_modified_time_aware(self, mock_ftp):
         """The correct datetime is returned in a timezone-aware context."""
-        aware_date = datetime.datetime(2026, 1, 1, 10, 30, 15, tzinfo=datetime.UTC)
+        aware_date = datetime.datetime(
+            2026, 1, 1, 10, 30, 15, tzinfo=datetime.timezone.utc
+        )
 
         with self.settings(TIME_ZONE="America/Montreal", USE_TZ=True):
             last_modified = self.storage.get_modified_time(MLST_FILE_NAME)
@@ -252,7 +254,9 @@ class FTPTest(TestCase):
     @patch("ftplib.FTP", **{"return_value.sendcmd.return_value": MLST_VALID})
     def test_get_modified_time_naive(self, mock_ftp):
         """The correct datetime is returned in a timezone-naive context."""
-        aware_date = datetime.datetime(2026, 1, 1, 10, 30, 15, tzinfo=datetime.UTC)
+        aware_date = datetime.datetime(
+            2026, 1, 1, 10, 30, 15, tzinfo=datetime.timezone.utc
+        )
 
         with self.settings(TIME_ZONE="America/Montreal", USE_TZ=False):
             naive_date = timezone.make_naive(aware_date)
