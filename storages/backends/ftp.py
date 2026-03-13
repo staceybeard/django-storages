@@ -203,7 +203,7 @@ class FTPStorage(BaseStorage):
             if "modify=" not in response:
                 raise FTPStorageException(
                     "Output of MLST is not in the expected format, "
-                    'or does not contain a "modify" attribute'
+                    f'or does not contain a "modify" attribute for file {file_name}'
                 )
 
             # Extract the timestamp between 'modify=' and the next ';'
@@ -212,6 +212,10 @@ class FTPStorage(BaseStorage):
                 tzinfo=datetime.UTC
             )
 
+        except ValueError as error:
+            raise FTPStorageException(
+                f'MLST "modify" timestamp is in an unexpected format for {file_name}'
+            ) from error
         except ftplib.all_errors as error:
             raise FTPStorageException(
                 f"Error getting listing for file {file_name}"
